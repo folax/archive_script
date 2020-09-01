@@ -1,7 +1,6 @@
 #!/bin/bash
 
 matchFilesArr=()
-allFilesPathArr=()
 
 checkFileName ()
 {
@@ -52,20 +51,17 @@ matchFilesArr=("$path_1" "$path_2")
 fi
 }
 
-#----------------------------------------------------------------------------------------------
+#Start of the program;
 dirPath=$1
 if [ -d $dirPath ] && [ $# -eq 1 ]; then
-    #for file in $dirPath/*
     for file in `find $dirPath -type f`
     do
     if [ -f $file ]; then
-    #Check file name in function;
     checkFileName "$(basename $file)"
-    allFilesPathArr+=($file)
     fi
     done
 else
-echo "Not contain / in path!"
+echo "The path isn't directory or invalid input arguments!"
 fi
 sortArr
 if [ ${#matchFilesArr[@]} == 2 ]; then
@@ -75,4 +71,3 @@ echo "Required files: [1]:= ${matchFilesArr[0]} and [2]:= ${matchFilesArr[1]}"
 else
 echo "The directory doesn't contain properly files! Exit..."
 fi
-#------------------------------------------------------------------------------------------------
