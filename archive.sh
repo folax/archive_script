@@ -1,15 +1,16 @@
 #!/bin/bash
 
 matchFilesArr=()
+readonly strLen=38
 
 checkFileName ()
 {
 fileName=$1
-if [ ${#fileName} -eq 38 ] && [[ ${fileName:0:9} = "Partition" ]] \
+if [ ${#fileName} -eq $strLen ] && [[ ${fileName:0:9} = "Partition" ]] \
 && [[ ${fileName:9:1} -eq 0 || ${fileName:9:1} -eq 1 ]] \
 && [ ${fileName:10:1} = "." ] && [[ ${fileName:11:8} =~ ^[[:digit:]]+$ ]] \
 && [ ${fileName:19:1} = "T" ] && [[ ${fileName:20:6} =~ ^[[:digit:]]+$ ]] \
-&& [ ${fileName:26:12} = ".verified.gz" ] ;then
+&& [ ${fileName:26:12} = ".verified.gz" ] ; then
 matchFilesArr+=($fileName)
 fi
 }
@@ -54,7 +55,7 @@ fi
 #Start of the program;
 dirPath=$1
 if [ -d $dirPath ] && [ $# -eq 1 ]; then
-    for file in `find $dirPath -type f`
+    for file in `find $dirPath -maxdepth 1 -type f`
     do
     if [ -f $file ]; then
     checkFileName "$(basename $file)"
@@ -65,8 +66,13 @@ echo "The path isn't directory or invalid input arguments!"
 fi
 sortArr
 if [ ${#matchFilesArr[@]} == 2 ]; then
+for file in `find $dirPath -mindepth 1 -maxdepth 1`
+do
+    if [ -d $file ]; then
+    echo "Deleted directory: $file" && rm -rf $file
+    fi
+done
 find $dirPath -type f \( ! -name "${matchFilesArr[0]}" ! -name "${matchFilesArr[1]}" \) -delete -printf 'Deleted file:= %f\n'
-find $dirPath -type d -empty -delete -printf 'Deleted directory:= %f\n'
 echo "Required files: [1]:= ${matchFilesArr[0]} and [2]:= ${matchFilesArr[1]}"
 else
 echo "The directory doesn't contain properly files! Exit..."
